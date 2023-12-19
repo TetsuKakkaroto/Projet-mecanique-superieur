@@ -22,12 +22,14 @@ def curve_slope(x):
     return (curve_function(x + h) - curve_function(x)) / h
 
 # On calcule le minimum de x
-x_min = None  # Initialize x_min to None
+x_min = None  
 for i in np.arange(0.1, 500, 0.05):
     if curve_slope(i) >= -0.1 and curve_slope(i) <= 0.1:
         if x_min is None or curve_function(i) < curve_function(x_min):
-            x_min = i  # Update x_min only if it's None or the function value at i is smaller
+            x_min = i  
 print(x_min)
+
+# Première simulation
 
 # Set up the plot for the first simulation (sliding particle)
 fig1, ax1 = plt.subplots()
@@ -45,7 +47,7 @@ ax1.set_ylim(initial_y1 - 20, initial_y1 + 80)
 
 # Simulation parameters
 dt = 0.02  # Time step
-velocity_gain_factor = 1  # Adjust this factor to control the rate of velocity gain
+velocity_gain_factor = 1  #control the velocity gain
 
 # Initialization function for the first animation
 def init1():
@@ -60,13 +62,13 @@ def update1(frame):
     # Update particle position
     t1 = frame * dt
 
-    # Update velocity based on sliding down the curve
+    # Lose velocity when going down 
     if curve_slope(prev_x1) > 0:
-        velocity1 -= gravity * dt * velocity_gain_factor * abs(curve_slope(prev_x1))  # Lose velocity zhen going up
+        velocity1 -= gravity * dt * velocity_gain_factor * abs(curve_slope(prev_x1))  
 
-    # Lose velocity when going uphill on the concave part
+    # Gain velocity when going up 
     if curve_slope(prev_x1) < 0:
-        velocity1 += gravity * dt * velocity_gain_factor * abs(curve_slope(prev_x1))  # Gain velocity when going down
+        velocity1 += gravity * dt * velocity_gain_factor * abs(curve_slope(prev_x1))  
 
     # No change in velocity when going on a straight line
     if curve_slope(prev_x1) == 0:
@@ -101,7 +103,7 @@ def update1(frame):
 
     return particle1, trajectory1
 
-# Initial velocity is zero
+# Initials conditions
 velocity1 = 0
 prev_velocity1 = 0
 prev_x1 = initial_x1
@@ -113,15 +115,12 @@ prev_y1 = initial_y1
 # Create the first animation
 animation1 = FuncAnimation(fig1, update1, frames=range(10000), init_func=init1, blit=True)
 
+# Deuxième simulation
 # Set up the plot for the second simulation (orbiting particle)
 fig2, ax2 = plt.subplots()
 particle2, = ax2.plot([], [], 'bo', markersize=8)
 trail2, = ax2.plot([], [], 'b-', alpha=0.5)  # Trail for the blue particle
 center_point, = ax2.plot([], [], 'ko')  # Black point at the center
-
-# Lists to store historical positions
-particle2_history_x = []
-particle2_history_y = []
 
 # Particle parameters for the second simulation
 initial_x2 = 0.0
@@ -148,8 +147,6 @@ particle2_history_y_after = []
 def update2(frame):
     global initial_x2, initial_y2, distance, angle, velocity2, check
 
-    t2 = frame * dt
-
     # Update orbit parameters in real-time
     distance = prev_x1  # Distance from the first simulation
     angular_velocity = (lz / (mu * (abs(prev_x1**2)))) * (d0 / t0)  # Same speed as the first simulation
@@ -162,12 +159,11 @@ def update2(frame):
 
     # Update trail color based on check
     if check == 1:
-        # Change the trail color to red when check is 1
+        # On restart la simulation quand on a trouvé t0
         particle2_history_x_after.append(x2)
         particle2_history_y_after.append(y2)
         trail2.set_data(particle2_history_x_after, particle2_history_y_after)
     else:
-        # Keep the trail color blue when check is not 1
         particle2_history_x_before.append(x2)
         particle2_history_y_before.append(y2)
         trail2.set_data(particle2_history_x_before, particle2_history_y_before)
@@ -180,7 +176,6 @@ def update2(frame):
     if check == 0:
         trail2.set_color('purple')
     else:
-        # Keep the trail color blue when check is not 1
         trail2.set_color('blue')
 
     return particle2, trail2, center_point
